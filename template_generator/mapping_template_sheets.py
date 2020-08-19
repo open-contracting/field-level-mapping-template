@@ -269,7 +269,7 @@ class MappingTemplateSheetsGenerator(object):
             sheets[name] = sheet_headers[name] + [headers] + sheets[name]
 
         # repeat fields from parties section for each organization reference 
-        sheets['general'].append(parties_rows[0]) # description of the parties section
+        sheets['general'].append(['subtitle', depth, '{}: {}'.format(parties_rows[0][3],parties_rows[0][4])]) # description of the parties section
 
         for ref in org_refs:
             sheets['general'].append(ref)
@@ -361,7 +361,7 @@ if __name__ == '__main__':
                                        'es': 'Si tiene información adicional que aplique a este nivel y que no está cubierto por el esquema OCDS principal o extensiones, agregue los elementos de datos a continuación, junto con una descripción propuesta. Esta información podrá ser utilizada para crear nuevas extensiones OCDS.'},
            'extension_section': {'en': 'Extensions are additions to the core OCDS schema which allow publishers to include extra information in their OCDS data. The following extensions are available for the present section:', 'es': 'Las extensiones son adiciones al esquema OCDS principal que permiten que los publicadores incluyan información extra en sus datos OCDS. Las siguientes extensiones están disponibles para la presente sección:'},
            'standard_name': {'en': 'Open Contracting Data Standard', 'es': 'Estándar de Datos de Contrataciones Abiertas'},
-           'organization_reference_title': {'en': 'Organization reference', 'es': 'Referencia de la organización'},
+           'organization_reference_title': {'en': 'OrganizationReference', 'es': 'Referencia de la organización'},
            'overview': {'en': 'Field Level Mapping Overview', 'es':'Descripción Mapeo a Nivel de Campos'},
            'source_systems': {'en': '(Source) 1. Systems', 'es':'(Fuentes) 1. Sistemas'},
            'source_fields': {'en': '(Source) 2. Fields', 'es':'(Fuentes) 1. Campos'},
