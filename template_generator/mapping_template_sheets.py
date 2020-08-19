@@ -187,7 +187,7 @@ class MappingTemplateSheetsGenerator(object):
                 formatPrefix = ''
 
             # add organization references to list for use in parties mapping sheet
-            is_org_reference = (hasattr(field.schema, '__reference__') and field.schema.__reference__['$ref'] == '#/definitions/' + self.get_string('organization_reference_title')) \
+            is_org_reference = (hasattr(field.schema, '__reference__') and field.schema.__reference__['$ref'] == '#/definitions/' + self.get_string('organization_reference_code')) \
                     or ('items' in field.schema and 'title' in field.schema['items'] and field.schema['items']['title'] == self.get_string('organization_reference_title'))
 
             if is_org_reference:
@@ -272,12 +272,14 @@ class MappingTemplateSheetsGenerator(object):
         sheets['general'].append(['subtitle', depth, '{}: {}'.format(parties_rows[0][3],parties_rows[0][4])]) # description of the parties section
 
         for ref in org_refs:
+            ref[0] = 'ref_span'
             sheets['general'].append(ref)
             sheets['general'].extend(parties_rows[1:])
 
         # add organizations from extensions
 
-        extension_parties_rows = [['extension_field', x[1], x[2], x[3], x[4]] for x in parties_rows[1:]]
+        extension_parties_rows = [['extension_'+x[0], x[1], x[2], x[3], x[4]] for x in parties_rows[1:]]
+
         for extension_name, orgs in org_refs_extensions.items():
             # insert extension name
             if not extension_name in extension_rows['general'].keys():
@@ -362,7 +364,8 @@ if __name__ == '__main__':
                                        'es': 'Si tiene información adicional que aplique a este nivel y que no está cubierto por el esquema OCDS principal o extensiones, agregue los elementos de datos a continuación, junto con una descripción propuesta. Esta información podrá ser utilizada para crear nuevas extensiones OCDS.'},
            'extension_section': {'en': 'Extensions are additions to the core OCDS schema which allow publishers to include extra information in their OCDS data. The following extensions are available for the present section:', 'es': 'Las extensiones son adiciones al esquema OCDS principal que permiten que los publicadores incluyan información extra en sus datos OCDS. Las siguientes extensiones están disponibles para la presente sección:'},
            'standard_name': {'en': 'Open Contracting Data Standard', 'es': 'Estándar de Datos de Contrataciones Abiertas'},
-           'organization_reference_title': {'en': 'OrganizationReference', 'es': 'Referencia de la organización'},
+           'organization_reference_code': {'en': 'OrganizationReference', 'es': 'Referencia de la organización'},
+           'organization_reference_title': {'en': 'Organization reference', 'es': 'Referencia de la organización'},
            'overview': {'en': 'Field Level Mapping Overview', 'es':'Descripción Mapeo a Nivel de Campos'},
            'source_systems': {'en': '(Source) 1. Systems', 'es':'(Fuentes) 1. Sistemas'},
            'source_fields': {'en': '(Source) 2. Fields', 'es':'(Fuentes) 1. Campos'},
