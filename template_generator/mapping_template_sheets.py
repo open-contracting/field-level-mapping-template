@@ -277,6 +277,7 @@ class MappingTemplateSheetsGenerator(object):
 
         # add organizations from extensions
 
+        extension_parties_rows = [['extension_field', x[1], x[2], x[3], x[4]] for x in parties_rows[1:]]
         for extension_name, orgs in org_refs_extensions.items():
             # insert extension name
             if not extension_name in extension_rows['general'].keys():
@@ -285,7 +286,7 @@ class MappingTemplateSheetsGenerator(object):
             # insert organizations
             for org in orgs:
                 extension_rows['general'][extension_name].append(org)
-                extension_rows['general'][extension_name].extend(parties_rows[1:])
+                extension_rows['general'][extension_name].extend(extension_parties_rows)
 
 
         for name in mapping_sheetnames:
