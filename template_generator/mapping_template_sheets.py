@@ -191,7 +191,7 @@ class MappingTemplateSheetsGenerator(object):
                     or ('items' in field.schema and 'title' in field.schema['items'] and field.schema['items']['title'] == self.get_string('organization_reference_title'))
 
             if is_org_reference:
-                row = [formatPrefix + formatKey, 1, field.path, field.schema['title'], field.schema['description']]
+                row = [formatPrefix + formatKey, 1, field.path]
 
                 if field_extension:
                     # if the org reference belongs to an extension, save it in a separate dict
@@ -201,25 +201,6 @@ class MappingTemplateSheetsGenerator(object):
                     org_refs_extensions[field_extension].append(row)
                 else:
                     org_refs.append(row)
-
-            # concatenate titles, descriptions and types for refs and arrays
-            if not field_is_stage and hasattr(field.schema, '__reference__'):
-                title = field.schema.__reference__['title'] + ' (' + field.schema['title'] + ')'
-                description = field.schema.__reference__['description'] + ' (' + field.schema['description'] + ')'
-
-            elif not field_is_stage and 'items' in field.schema and 'properties' in field.schema['items'] and 'title' in field.schema['items']:
-                title = field.schema['title'] + ' (' + field.schema['items']['title'] + ')'
-                description  = field.schema['description'] + ' (' + field.schema['items'].get('description', '') + ')'
-
-            else:
-                title = field.schema['title']
-                description = field.schema['description']
-
-            # remove links from descriptions
-            links = dict(INLINE_LINK_RE.findall(description))
-
-            for key, link in links.items():
-                description = description.replace('[' + key + '](' + link + ')', key)
 
             try:
                 path = field.path[:field.path.index('/')]
@@ -244,11 +225,11 @@ class MappingTemplateSheetsGenerator(object):
                 sheetname = 'general'
             
             if formatKey == 'title':
-                sheet_headers[sheetname].append([formatKey, depth, '{}: {}'.format(self.get_string('standard_name'), title)])
-                sheet_headers[sheetname].append(['subtitle', depth, description])
+                sheet_headers[sheetname].append([formatKey, depth, '{}: {}'.format(self.get_string('standard_name'), field.schema['title'])])
+                sheet_headers[sheetname].append(['subtitle', depth, field.schema['description']])
                 continue
             else:
-                row = [formatPrefix + formatKey, depth, field.path, title, description]
+                row = [formatPrefix + formatKey, depth, field.path]
 
             if field_extension:
 
@@ -269,7 +250,7 @@ class MappingTemplateSheetsGenerator(object):
             sheets[name] = sheet_headers[name] + [headers] + sheets[name]
 
         # repeat fields from parties section for each organization reference 
-        sheets['general'].append(['subtitle', depth, '{}: {}'.format(parties_rows[0][3],parties_rows[0][4])]) # description of the parties section
+        sheets['general'].append(['subtitle', depth, self.get_string('parties_description')]) # description of the parties section
 
         for ref in org_refs:
             ref[0] = 'ref_span'
@@ -278,7 +259,7 @@ class MappingTemplateSheetsGenerator(object):
 
         # add organizations from extensions
 
-        extension_parties_rows = [['extension_'+x[0], x[1], x[2], x[3], x[4]] for x in parties_rows[1:]]
+        extension_parties_rows = [['extension_'+x[0], x[1], x[2]] for x in parties_rows[1:]]
 
         for extension_name, orgs in org_refs_extensions.items():
             # insert extension name
@@ -363,6 +344,7 @@ if __name__ == '__main__':
            'additional_fields_note': {'en': 'If you have additional information applicable at this level and not covered by the core OCDS schema or extensions, list the data items below, along with a proposed description. This information can be used to develop new OCDS extensions.',
                                        'es': 'Si tiene información adicional que aplique a este nivel y que no está cubierto por el esquema OCDS principal o extensiones, agregue los elementos de datos a continuación, junto con una descripción propuesta. Esta información podrá ser utilizada para crear nuevas extensiones OCDS.'},
            'extension_section': {'en': 'Extensions are additions to the core OCDS schema which allow publishers to include extra information in their OCDS data. The following extensions are available for the present section:', 'es': 'Las extensiones son adiciones al esquema OCDS principal que permiten que los publicadores incluyan información extra en sus datos OCDS. Las siguientes extensiones están disponibles para la presente sección:'},
+           'parties_description': {'en': 'Parties: Information on the parties (organizations, economic operators and other participants) who are involved in the contracting process and their roles, e.g. buyer, procuring entity, supplier etc. Organization references elsewhere in the schema are used to refer back to this entries in this list.', 'es': 'Partes: Información sobre las partes (organizaciones, operadores económicos y otros participantes) que están involucrados en el proceso de contratación y sus roles, ej. comprador, entidad contratante, proveedor, etc. Las referencias a organizaciones en otros lugares del esquema son usados para referirse de vuelta a estas entradas en la lista.'},
            'standard_name': {'en': 'Open Contracting Data Standard', 'es': 'Estándar de Datos de Contrataciones Abiertas'},
            'organization_reference_code': {'en': 'OrganizationReference', 'es': 'Referencia de la organización'},
            'organization_reference_title': {'en': 'Organization reference', 'es': 'Referencia de la organización'},
