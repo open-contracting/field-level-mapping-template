@@ -102,7 +102,7 @@ class ExtensionsInfo(object):
 
 
 if __name__ == '__main__':
-    extensions = Extensions(lang='es')
+    extensions = ExtensionsInfo(lang='es', version='v1.1.5')
 
     urls = extensions.load_extensions_info()
 
