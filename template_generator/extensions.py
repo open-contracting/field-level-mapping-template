@@ -13,7 +13,7 @@ from ocdsextensionregistry import ExtensionRegistry
 class ExtensionsInfo(object):
 
     extensions_url = 'https://raw.githubusercontent.com/open-contracting/extension_registry/main/extensions.csv'
-    extension_versions_url = 'https://raw.githubusercontent.com/open-contracting/extension_registry/main/extension_versions.csv'
+    extension_versions_url = 'https://raw.githubusercontent.com/open-contracting/extension_registry/main/extension_versions.csv'  # noqa: E501
 
     def __init__(self, lang='en', exclusions=['milestone_documents'], version='master'):
         self.lang = lang
@@ -48,7 +48,7 @@ class ExtensionsInfo(object):
                 path = extensions_dir / zip_file.infolist()[0].filename
                 path.rename(extensions_dir / version.id)
 
-        if self.lang is 'en':
+        if self.lang == 'en':
 
             output_dir = extensions_dir
 
@@ -91,7 +91,7 @@ class ExtensionsInfo(object):
                 info = json.load(f)
                 self.descriptions[info['name'][self.lang]] = info['description'][self.lang]
                 # mapping-schema looks for the name of the name extension in English
-                if self.lang is not 'en':
+                if self.lang != 'en':
                     info['name']['en'] = info['name'][self.lang]
             with path.open(mode='w') as f:
                 json.dump(info, f)
