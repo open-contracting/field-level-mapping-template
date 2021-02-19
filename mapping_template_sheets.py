@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import csv
+import os
 import re
 import subprocess
 from collections import OrderedDict
@@ -317,12 +318,13 @@ class MappingTemplateSheetsGenerator(object):
         for key, value in sheets.items():
             outputs.append({
                 'sheet': value,
-                'file': key + '_mapping.csv',
+                'file': os.path.join('output', key + '_mapping.csv'),
                 'sheetname': self.get_string(key + '_sheetname')
             })
 
         ids = []
 
+        os.makedirs('output', exist_ok=True)
         for output in outputs:
             with open(output['file'], 'w', encoding='utf8', newline='') as output_file:
                 writer = csv.writer(output_file, dialect='excel')
@@ -374,7 +376,9 @@ if __name__ == '__main__':
     info = ExtensionsInfo(lang=lang)
     urls = info.load_extensions_info()
 
-    subprocess.run(['curl', '-O', schema_url])
+    with open('release-schema.json', 'w') as f:
+        f.write(requests.get(schema_url).text)
+
     with open('mapping-sheet.csv', 'w') as f:
         subprocess.run(['ocdskit', 'mapping-sheet', 'release-schema.json', '--extension'] + urls +
                        ['--extension-field', 'extension'], stdout=f)
