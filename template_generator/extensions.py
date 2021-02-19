@@ -1,11 +1,11 @@
 import json
-import requests
 import shutil
 from glob import glob
 from io import BytesIO
 from pathlib import Path
 from zipfile import ZipFile
 
+import requests
 from ocds_babel.translate import translate
 from ocdsextensionregistry import ExtensionRegistry
 

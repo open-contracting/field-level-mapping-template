@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 import csv
-import jsonref
 import re
-import requests
 import subprocess
 from collections import OrderedDict
 from operator import itemgetter
+
+import jsonref
+import requests
 
 try:
     from google.colab import auth
@@ -14,8 +15,8 @@ except ImportError:
     # not running in a colab runtime, doesn't matter if running locally
     pass
 
-from ocdskit.schema import get_schema_fields
 from ocdsextensionregistry import ProfileBuilder
+from ocdskit.schema import get_schema_fields
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 
