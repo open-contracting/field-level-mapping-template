@@ -12,8 +12,8 @@ from ocdsextensionregistry import ExtensionRegistry
 
 class ExtensionsInfo(object):
         
-    extensions_url = 'https://raw.githubusercontent.com/open-contracting/extension_registry/master/extensions.csv'
-    extension_versions_url = 'https://raw.githubusercontent.com/open-contracting/extension_registry/master/extension_versions.csv'
+    extensions_url = 'https://raw.githubusercontent.com/open-contracting/extension_registry/main/extensions.csv'
+    extension_versions_url = 'https://raw.githubusercontent.com/open-contracting/extension_registry/main/extension_versions.csv'
     
 
     def __init__(self, lang='en', exclusions=['milestone_documents'], version='master'):
