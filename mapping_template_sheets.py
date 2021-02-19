@@ -370,7 +370,7 @@ if __name__ == '__main__':
     }
 
     lang = 'en'
-    schema_url = 'https://standard.open-contracting.org/1.1-dev/en/release-schema.json'
+    schema_url = 'https://standard.open-contracting.org/1.1/en/release-schema.json'
     info = ExtensionsInfo(lang=lang)
     urls = info.load_extensions_info()
 
