@@ -34,9 +34,9 @@ class MappingTemplateSheetsGenerator(object):
         self.extensions_info = extensions_info
         self.field_extensions = {}
         self.save_to = save_to
-        
+
         # read extension names per path from mapping-sheet
-        with open(self.mapping_sheet_file, 'r') as f: 
+        with open(self.mapping_sheet_file, 'r') as f:
             reader = csv.DictReader(f, dialect='excel')
             row = next(reader)
             for row in reader:
@@ -70,18 +70,18 @@ class MappingTemplateSheetsGenerator(object):
         schema = self.get_patched_schema()
 
         mapping_sheetnames = (
-                'general',
-                'planning',
-                'tender',
-                'awards',
-                'contracts',
-                'implementation'
-                )
+            'general',
+            'planning',
+            'tender',
+            'awards',
+            'contracts',
+            'implementation'
+        )
 
         sheetnames = mapping_sheetnames + (
-                'schema',
-                'schema_extensions'
-                )
+            'schema',
+            'schema_extensions'
+        )
 
         # create list for each mapping sheet
         sheets = {x: [] for x in sheetnames}
@@ -95,8 +95,7 @@ class MappingTemplateSheetsGenerator(object):
             'contracts',
             'implementation',
             'parties'
-            )}
-
+        )}
 
         # use the mapping sheet to load the schema and schema_extensions tabs
         header = []
@@ -116,10 +115,10 @@ class MappingTemplateSheetsGenerator(object):
                     sheets['schema'].append(row[:-1])
 
         # move the extension column to the beginning
-        sheets['schema_extensions'] = [ row[-1:] + row[1:-1] for row in sheets['schema_extensions'] ]
+        sheets['schema_extensions'] = [row[-1:] + row[1:-1] for row in sheets['schema_extensions']]
 
         # sort the Extension Schemas by extension, stage and path
-        sheets['schema_extensions'].sort(key=itemgetter(0,1))
+        sheets['schema_extensions'].sort(key=itemgetter(0, 1))
 
         # add header
         sheets['schema_extensions'] = [header[-1:] + header[1:-1]] + sheets['schema_extensions']
@@ -129,7 +128,7 @@ class MappingTemplateSheetsGenerator(object):
 
         # create list for organization references to add to parties sheet
         org_refs = []
-        org_refs_extensions = OrderedDict();
+        org_refs_extensions = OrderedDict()
 
         # set default depth for row grouping in Google Sheets
         depth = 0
@@ -144,13 +143,13 @@ class MappingTemplateSheetsGenerator(object):
 
         # add header rows to each sheet
         headers = ['column_headers',
-                depth,
-                self.get_string('path_header'),
-                self.get_string('title_header'),
-                self.get_string('description_header'),
-                self.get_string('mapping_header'),
-                self.get_string('example_header'),
-                self.get_string('notes_header')]
+                   depth,
+                   self.get_string('path_header'),
+                   self.get_string('title_header'),
+                   self.get_string('description_header'),
+                   self.get_string('mapping_header'),
+                   self.get_string('example_header'),
+                   self.get_string('notes_header')]
 
         # add row to mapping sheet for each field in the schema
         for field in get_schema_fields(schema):
@@ -161,7 +160,7 @@ class MappingTemplateSheetsGenerator(object):
 
             # set separator to use in field paths in output
             field.sep = '/'
-            
+
             # is this field from an extension?
             try:
                 field_extension = self.field_extensions[field.path]
@@ -169,7 +168,7 @@ class MappingTemplateSheetsGenerator(object):
                 field_extension = ''
 
             # is this field a top-level stage?
-            field_is_stage = field.path in ('planning','tender','awards','contracts','contracts/implementation')
+            field_is_stage = field.path in ('planning', 'tender', 'awards', 'contracts', 'contracts/implementation')
 
             # set formatting keys for use in Google Sheets script
             if field_is_stage:
@@ -188,7 +187,7 @@ class MappingTemplateSheetsGenerator(object):
 
             # add organization references to list for use in parties mapping sheet
             is_org_reference = (hasattr(field.schema, '__reference__') and field.schema.__reference__['$ref'] == '#/definitions/' + self.get_string('organization_reference_code')) \
-                    or ('items' in field.schema and 'title' in field.schema['items'] and field.schema['items']['title'] == self.get_string('organization_reference_title'))
+                or ('items' in field.schema and 'title' in field.schema['items'] and field.schema['items']['title'] == self.get_string('organization_reference_title'))
 
             if is_org_reference:
                 row = [formatPrefix + formatKey, 1, field.path]
@@ -223,9 +222,10 @@ class MappingTemplateSheetsGenerator(object):
             else:
                 sheet = sheets['general']
                 sheetname = 'general'
-            
+
             if formatKey == 'title':
-                sheet_headers[sheetname].append([formatKey, depth, '{}: {}'.format(self.get_string('standard_name'), field.schema['title'])])
+                sheet_headers[sheetname].append([formatKey, depth, '{}: {}'.format(
+                    self.get_string('standard_name'), field.schema['title'])])
                 sheet_headers[sheetname].append(['subtitle', depth, field.schema['description']])
                 continue
             else:
@@ -242,15 +242,17 @@ class MappingTemplateSheetsGenerator(object):
 
         # add a static header for the General sheet
 
-        sheet_headers['general'].append(['title', depth, '{}: {}'.format(self.get_string('standard_name'), self.get_string('general_title'))])
+        sheet_headers['general'].append(['title', depth, '{}: {}'.format(
+            self.get_string('standard_name'), self.get_string('general_title'))])
         sheet_headers['general'].append(['subtitle', depth, self.get_string('general_help_text')])
 
         # add headers for each sheet
         for name in mapping_sheetnames:
             sheets[name] = sheet_headers[name] + [headers] + sheets[name]
 
-        # repeat fields from parties section for each organization reference 
-        sheets['general'].append(['subtitle', depth, self.get_string('parties_description')]) # description of the parties section
+        # repeat fields from parties section for each organization reference
+        sheets['general'].append(['subtitle', depth, self.get_string('parties_description')]
+                                 )  # description of the parties section
 
         for ref in org_refs:
             ref[0] = 'ref_span'
@@ -271,7 +273,6 @@ class MappingTemplateSheetsGenerator(object):
                 extension_rows['general'][extension_name].append(org)
                 extension_rows['general'][extension_name].extend(extension_parties_rows)
 
-
         for name in mapping_sheetnames:
 
             if len(extension_rows[name].keys()):
@@ -283,28 +284,27 @@ class MappingTemplateSheetsGenerator(object):
                 for extension_name, rows in extension_rows[name].items():
                     text = extension_name + ': ' + self.extensions_info.get_description(extension_name)
 
-                    sheets[name].append(['extension',0,text])
+                    sheets[name].append(['extension', 0, text])
                     sheets[name].extend(rows)
-            
+
             # add additional fields section to each sheet
             sheets[name].append(['section', 0, self.get_string('additional_fields_note')])
-            
+
             for i in range(4):
-                sheets[name].append(['additional_field',0]) # was 1
-            
+                sheets[name].append(['additional_field', 0])  # was 1
+
             # make all rows have the same number of columns
             # (required for CSV parsing script in Google Sheets)
             for row in sheets[name]:
                 if len(row) < len(headers):
                     for i in range(len(headers) - len(row)):
                         row.append('')
-            
+
         return self._save_sheets(sheets)
 
-
     def _save_sheets(self, sheets):
-        
-        if self.save_to == 'drive': 
+
+        if self.save_to == 'drive':
             # save CSVs and upload to Google Drive
             drive = self.authenticate_pydrive()
 
@@ -314,7 +314,7 @@ class MappingTemplateSheetsGenerator(object):
                 'sheet': value,
                 'file': key + '_mapping.csv',
                 'sheetname': self.get_string(key + '_sheetname')
-                })
+            })
 
         ids = []
 
@@ -322,7 +322,7 @@ class MappingTemplateSheetsGenerator(object):
             with open(output['file'], 'w', encoding='utf8', newline='') as output_file:
                 writer = csv.writer(output_file, dialect='excel')
                 writer.writerows(output['sheet'])
-                
+
             if self.save_to == 'drive':
                 uploaded = drive.CreateFile({'title': output['sheetname']})
                 uploaded.SetContentFile(output['file'])
@@ -331,47 +331,48 @@ class MappingTemplateSheetsGenerator(object):
 
         return ids
 
+
 if __name__ == '__main__':
-    
+
     strings = {'path_header': {'en': 'Path', 'es': 'Rutas'},
-           'type_header': {'en': 'Type', 'es': 'Tipo'},
-           'title_header': {'en': 'Title', 'es': 'Título'},
-           'description_header': {'en': 'Description', 'es': 'Descripción'},
-           'mapping_header': {'en': 'Mapping', 'es': 'Mapear'},
-           'example_header': {'en': 'Example', 'es': 'Ejemplo'},
-           'notes_header': {'en': 'Notes', 'es': 'Notas'},
-           'general_help_text': {'en': 'Fields in this section apply at release level. Each release provides data about a single contracting process at a particular point in time. Releases can be used to notify users of new tenders, awards, contracts, and other updates', 'es': 'Los campos de esta sección aplican a nivel de entrega. Cada entrega provee datos sobre un proceso de contratación único en un momento particular en el tiempo. Las entregas pueden ser usadas para notificar a los usuarios de nuevas licitaciones, adjudicaciones y otras actualizaciones.'},
-           'additional_fields_note': {'en': 'If you have additional information applicable at this level and not covered by the core OCDS schema or extensions, list the data items below, along with a proposed description. This information can be used to develop new OCDS extensions.',
-                                       'es': 'Si tiene información adicional que aplique a este nivel y que no está cubierto por el esquema OCDS principal o extensiones, agregue los elementos de datos a continuación, junto con una descripción propuesta. Esta información podrá ser utilizada para crear nuevas extensiones OCDS.'},
-           'extension_section': {'en': 'Extensions are additions to the core OCDS schema which allow publishers to include extra information in their OCDS data. The following extensions are available for the present section:', 'es': 'Las extensiones son adiciones al esquema OCDS principal que permiten que los publicadores incluyan información extra en sus datos OCDS. Las siguientes extensiones están disponibles para la presente sección:'},
-           'parties_description': {'en': 'Parties: Information on the parties (organizations, economic operators and other participants) who are involved in the contracting process and their roles, e.g. buyer, procuring entity, supplier etc. Organization references elsewhere in the schema are used to refer back to this entries in this list.', 'es': 'Partes: Información sobre las partes (organizaciones, operadores económicos y otros participantes) que están involucrados en el proceso de contratación y sus roles, ej. comprador, entidad contratante, proveedor, etc. Las referencias a organizaciones en otros lugares del esquema son usados para referirse de vuelta a estas entradas en la lista.'},
-           'standard_name': {'en': 'Open Contracting Data Standard', 'es': 'Estándar de Datos de Contrataciones Abiertas'},
-           'organization_reference_code': {'en': 'OrganizationReference', 'es': 'Referencia de la organización'},
-           'organization_reference_title': {'en': 'Organization reference', 'es': 'Referencia de la organización'},
-           'overview': {'en': 'Field Level Mapping Overview', 'es':'Descripción Mapeo a Nivel de Campos'},
-           'source_systems': {'en': '(Source) 1. Systems', 'es':'(Fuentes) 1. Sistemas'},
-           'source_fields': {'en': '(Source) 2. Fields', 'es':'(Fuentes) 1. Campos'},
-           'general_sheetname': {'en': '(OCDS) 1. General (all stages)', 'es':'(OCDS) 1. General (todas las etapas)'}, 
-           'general_title': {'en': 'General (all stages)', 'es':'General (todas las etapas)'}, 
-           'planning_sheetname': {'en': '(OCDS) 2. Planning', 'es':'(OCDS) 2. Planificación'}, 
-           'tender_sheetname': {'en': '(OCDS) 3. Tender', 'es':'(OCDS) 3. Licitación'}, 
-           'awards_sheetname': {'en': '(OCDS) 4. Award', 'es':'(OCDS) 4. Adjudicación'}, 
-           'contracts_sheetname': {'en': '(OCDS) 5. Contract', 'es':'(OCDS) 5. Contrato'}, 
-           'implementation_sheetname': {'en': '(OCDS) 6. Implementation', 'es':'(OCDS) 6. Implementación'}, 
-           'schema_sheetname': {'en': 'OCDS Schema 1.1.5', 'es':'Esquema OCDS 1.1.5'},
-           'schema_extensions_sheetname': {'en': 'OCDS Extension Schemas 1.1.5', 'es':'Esquemas de Extensiones OCDS 1.1.5'}
-    }
+               'type_header': {'en': 'Type', 'es': 'Tipo'},
+               'title_header': {'en': 'Title', 'es': 'Título'},
+               'description_header': {'en': 'Description', 'es': 'Descripción'},
+               'mapping_header': {'en': 'Mapping', 'es': 'Mapear'},
+               'example_header': {'en': 'Example', 'es': 'Ejemplo'},
+               'notes_header': {'en': 'Notes', 'es': 'Notas'},
+               'general_help_text': {'en': 'Fields in this section apply at release level. Each release provides data about a single contracting process at a particular point in time. Releases can be used to notify users of new tenders, awards, contracts, and other updates', 'es': 'Los campos de esta sección aplican a nivel de entrega. Cada entrega provee datos sobre un proceso de contratación único en un momento particular en el tiempo. Las entregas pueden ser usadas para notificar a los usuarios de nuevas licitaciones, adjudicaciones y otras actualizaciones.'},
+               'additional_fields_note': {'en': 'If you have additional information applicable at this level and not covered by the core OCDS schema or extensions, list the data items below, along with a proposed description. This information can be used to develop new OCDS extensions.',
+                                          'es': 'Si tiene información adicional que aplique a este nivel y que no está cubierto por el esquema OCDS principal o extensiones, agregue los elementos de datos a continuación, junto con una descripción propuesta. Esta información podrá ser utilizada para crear nuevas extensiones OCDS.'},
+               'extension_section': {'en': 'Extensions are additions to the core OCDS schema which allow publishers to include extra information in their OCDS data. The following extensions are available for the present section:', 'es': 'Las extensiones son adiciones al esquema OCDS principal que permiten que los publicadores incluyan información extra en sus datos OCDS. Las siguientes extensiones están disponibles para la presente sección:'},
+               'parties_description': {'en': 'Parties: Information on the parties (organizations, economic operators and other participants) who are involved in the contracting process and their roles, e.g. buyer, procuring entity, supplier etc. Organization references elsewhere in the schema are used to refer back to this entries in this list.', 'es': 'Partes: Información sobre las partes (organizaciones, operadores económicos y otros participantes) que están involucrados en el proceso de contratación y sus roles, ej. comprador, entidad contratante, proveedor, etc. Las referencias a organizaciones en otros lugares del esquema son usados para referirse de vuelta a estas entradas en la lista.'},
+               'standard_name': {'en': 'Open Contracting Data Standard', 'es': 'Estándar de Datos de Contrataciones Abiertas'},
+               'organization_reference_code': {'en': 'OrganizationReference', 'es': 'Referencia de la organización'},
+               'organization_reference_title': {'en': 'Organization reference', 'es': 'Referencia de la organización'},
+               'overview': {'en': 'Field Level Mapping Overview', 'es': 'Descripción Mapeo a Nivel de Campos'},
+               'source_systems': {'en': '(Source) 1. Systems', 'es': '(Fuentes) 1. Sistemas'},
+               'source_fields': {'en': '(Source) 2. Fields', 'es': '(Fuentes) 1. Campos'},
+               'general_sheetname': {'en': '(OCDS) 1. General (all stages)', 'es': '(OCDS) 1. General (todas las etapas)'},
+               'general_title': {'en': 'General (all stages)', 'es': 'General (todas las etapas)'},
+               'planning_sheetname': {'en': '(OCDS) 2. Planning', 'es': '(OCDS) 2. Planificación'},
+               'tender_sheetname': {'en': '(OCDS) 3. Tender', 'es': '(OCDS) 3. Licitación'},
+               'awards_sheetname': {'en': '(OCDS) 4. Award', 'es': '(OCDS) 4. Adjudicación'},
+               'contracts_sheetname': {'en': '(OCDS) 5. Contract', 'es': '(OCDS) 5. Contrato'},
+               'implementation_sheetname': {'en': '(OCDS) 6. Implementation', 'es': '(OCDS) 6. Implementación'},
+               'schema_sheetname': {'en': 'OCDS Schema 1.1.5', 'es': 'Esquema OCDS 1.1.5'},
+               'schema_extensions_sheetname': {'en': 'OCDS Extension Schemas 1.1.5', 'es': 'Esquemas de Extensiones OCDS 1.1.5'}
+               }
 
     lang = 'en'
     schema_url = 'https://standard.open-contracting.org/1.1-dev/en/release-schema.json'
     info = ExtensionsInfo(lang=lang)
-    urls= info.load_extensions_info()
-    
-    subprocess.run(['curl','-O',schema_url])
+    urls = info.load_extensions_info()
+
+    subprocess.run(['curl', '-O', schema_url])
     with open('mapping-sheet.csv', 'w') as f:
-        subprocess.run(['ocdskit','mapping-sheet','release-schema.json','--extension'] + urls + ['--extension-field','extension'],
-                stdout=f)
+        subprocess.run(['ocdskit', 'mapping-sheet', 'release-schema.json', '--extension'] + urls + ['--extension-field', 'extension'],
+                       stdout=f)
 
-    g = MappingTemplateSheetsGenerator(lang=lang, schema_url=schema_url, extensions_info=info, strings=strings, save_to='local')
+    g = MappingTemplateSheetsGenerator(lang=lang, schema_url=schema_url,
+                                       extensions_info=info, strings=strings, save_to='local')
     g.generate_mapping_sheets()
-
