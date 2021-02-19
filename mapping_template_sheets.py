@@ -340,35 +340,111 @@ class MappingTemplateSheetsGenerator(object):
 
 
 if __name__ == '__main__':
-
     strings = {
-        'path_header': {'en': 'Path', 'es': 'Rutas'},
-        'type_header': {'en': 'Type', 'es': 'Tipo'},
-        'title_header': {'en': 'Title', 'es': 'Título'},
-        'description_header': {'en': 'Description', 'es': 'Descripción'},
-        'mapping_header': {'en': 'Mapping', 'es': 'Mapear'},
-        'example_header': {'en': 'Example', 'es': 'Ejemplo'},
-        'notes_header': {'en': 'Notes', 'es': 'Notas'},
-        'general_help_text': {'en': 'Fields in this section apply at release level. Each release provides data about a single contracting process at a particular point in time. Releases can be used to notify users of new tenders, awards, contracts, and other updates', 'es': 'Los campos de esta sección aplican a nivel de entrega. Cada entrega provee datos sobre un proceso de contratación único en un momento particular en el tiempo. Las entregas pueden ser usadas para notificar a los usuarios de nuevas licitaciones, adjudicaciones y otras actualizaciones.'},  # noqa: E501
-        'additional_fields_note': {'en': 'If you have additional information applicable at this level and not covered by the core OCDS schema or extensions, list the data items below, along with a proposed description. This information can be used to develop new OCDS extensions.',  # noqa: E501
-                                   'es': 'Si tiene información adicional que aplique a este nivel y que no está cubierto por el esquema OCDS principal o extensiones, agregue los elementos de datos a continuación, junto con una descripción propuesta. Esta información podrá ser utilizada para crear nuevas extensiones OCDS.'},  # noqa: E501
-        'extension_section': {'en': 'Extensions are additions to the core OCDS schema which allow publishers to include extra information in their OCDS data. The following extensions are available for the present section:', 'es': 'Las extensiones son adiciones al esquema OCDS principal que permiten que los publicadores incluyan información extra en sus datos OCDS. Las siguientes extensiones están disponibles para la presente sección:'},  # noqa: E501
-        'parties_description': {'en': 'Parties: Information on the parties (organizations, economic operators and other participants) who are involved in the contracting process and their roles, e.g. buyer, procuring entity, supplier etc. Organization references elsewhere in the schema are used to refer back to this entries in this list.', 'es': 'Partes: Información sobre las partes (organizaciones, operadores económicos y otros participantes) que están involucrados en el proceso de contratación y sus roles, ej. comprador, entidad contratante, proveedor, etc. Las referencias a organizaciones en otros lugares del esquema son usados para referirse de vuelta a estas entradas en la lista.'},  # noqa: E501
-        'standard_name': {'en': 'Open Contracting Data Standard', 'es': 'Estándar de Datos de Contrataciones Abiertas'},  # noqa: E501
-        'organization_reference_code': {'en': 'OrganizationReference', 'es': 'Referencia de la organización'},
-        'organization_reference_title': {'en': 'Organization reference', 'es': 'Referencia de la organización'},
-        'overview': {'en': 'Field Level Mapping Overview', 'es': 'Descripción Mapeo a Nivel de Campos'},
-        'source_systems': {'en': '(Source) 1. Systems', 'es': '(Fuentes) 1. Sistemas'},
-        'source_fields': {'en': '(Source) 2. Fields', 'es': '(Fuentes) 1. Campos'},
-        'general_sheetname': {'en': '(OCDS) 1. General (all stages)', 'es': '(OCDS) 1. General (todas las etapas)'},
-        'general_title': {'en': 'General (all stages)', 'es': 'General (todas las etapas)'},
-        'planning_sheetname': {'en': '(OCDS) 2. Planning', 'es': '(OCDS) 2. Planificación'},
-        'tender_sheetname': {'en': '(OCDS) 3. Tender', 'es': '(OCDS) 3. Licitación'},
-        'awards_sheetname': {'en': '(OCDS) 4. Award', 'es': '(OCDS) 4. Adjudicación'},
-        'contracts_sheetname': {'en': '(OCDS) 5. Contract', 'es': '(OCDS) 5. Contrato'},
-        'implementation_sheetname': {'en': '(OCDS) 6. Implementation', 'es': '(OCDS) 6. Implementación'},
-        'schema_sheetname': {'en': 'OCDS Schema 1.1.5', 'es': 'Esquema OCDS 1.1.5'},
-        'schema_extensions_sheetname': {'en': 'OCDS Extension Schemas 1.1.5', 'es': 'Esquemas de Extensiones OCDS 1.1.5'},  # noqa: E501
+        'path_header': {
+            'en': 'Path',
+            'es': 'Rutas',
+        },
+        'type_header': {
+            'en': 'Type',
+            'es': 'Tipo',
+        },
+        'title_header': {
+            'en': 'Title',
+            'es': 'Título',
+        },
+        'description_header': {
+            'en': 'Description',
+            'es': 'Descripción',
+        },
+        'mapping_header': {
+            'en': 'Mapping',
+            'es': 'Mapear',
+        },
+        'example_header': {
+            'en': 'Example',
+            'es': 'Ejemplo',
+        },
+        'notes_header': {
+            'en': 'Notes',
+            'es': 'Notas',
+        },
+        'general_help_text': {
+            'en': 'Fields in this section apply at release level. Each release provides data about a single contracting process at a particular point in time. Releases can be used to notify users of new tenders, awards, contracts, and other updates',  # noqa: E501
+            'es': 'Los campos de esta sección aplican a nivel de entrega. Cada entrega provee datos sobre un proceso de contratación único en un momento particular en el tiempo. Las entregas pueden ser usadas para notificar a los usuarios de nuevas licitaciones, adjudicaciones y otras actualizaciones.',  # noqa: E501
+        },
+        'additional_fields_note': {
+            'en': 'If you have additional information applicable at this level and not covered by the core OCDS schema or extensions, list the data items below, along with a proposed description. This information can be used to develop new OCDS extensions.',  # noqa: E501
+            'es': 'Si tiene información adicional que aplique a este nivel y que no está cubierto por el esquema OCDS principal o extensiones, agregue los elementos de datos a continuación, junto con una descripción propuesta. Esta información podrá ser utilizada para crear nuevas extensiones OCDS.',  # noqa: E501
+        },
+        'extension_section': {
+            'en': 'Extensions are additions to the core OCDS schema which allow publishers to include extra information in their OCDS data. The following extensions are available for the present section:',  # noqa: E501
+            'es': 'Las extensiones son adiciones al esquema OCDS principal que permiten que los publicadores incluyan información extra en sus datos OCDS. Las siguientes extensiones están disponibles para la presente sección:',  # noqa: E501
+        },
+        'parties_description': {
+            'en': 'Parties: Information on the parties (organizations, economic operators and other participants) who are involved in the contracting process and their roles, e.g. buyer, procuring entity, supplier etc. Organization references elsewhere in the schema are used to refer back to this entries in this list.',  # noqa: E501
+            'es': 'Partes: Información sobre las partes (organizaciones, operadores económicos y otros participantes) que están involucrados en el proceso de contratación y sus roles, ej. comprador, entidad contratante, proveedor, etc. Las referencias a organizaciones en otros lugares del esquema son usados para referirse de vuelta a estas entradas en la lista.',  # noqa: E501
+        },
+        'standard_name': {
+            'en': 'Open Contracting Data Standard',
+            'es': 'Estándar de Datos de Contrataciones Abiertas',
+        },
+        'organization_reference_code': {
+            'en': 'OrganizationReference',
+            'es': 'Referencia de la organización',
+        },
+        'organization_reference_title': {
+            'en': 'Organization reference',
+            'es': 'Referencia de la organización',
+        },
+        'overview': {
+            'en': 'Field Level Mapping Overview',
+            'es': 'Descripción Mapeo a Nivel de Campos',
+        },
+        'source_systems': {
+            'en': '(Source) 1. Systems',
+            'es': '(Fuentes) 1. Sistemas',
+        },
+        'source_fields': {
+            'en': '(Source) 2. Fields',
+            'es': '(Fuentes) 1. Campos',
+        },
+        'general_sheetname': {
+            'en': '(OCDS) 1. General (all stages)',
+            'es': '(OCDS) 1. General (todas las etapas)',
+        },
+        'general_title': {
+            'en': 'General (all stages)',
+            'es': 'General (todas las etapas)',
+        },
+        'planning_sheetname': {
+            'en': '(OCDS) 2. Planning',
+            'es': '(OCDS) 2. Planificación',
+        },
+        'tender_sheetname': {
+            'en': '(OCDS) 3. Tender',
+            'es': '(OCDS) 3. Licitación',
+        },
+        'awards_sheetname': {
+            'en': '(OCDS) 4. Award',
+            'es': '(OCDS) 4. Adjudicación',
+        },
+        'contracts_sheetname': {
+            'en': '(OCDS) 5. Contract',
+            'es': '(OCDS) 5. Contrato',
+        },
+        'implementation_sheetname': {
+            'en': '(OCDS) 6. Implementation',
+            'es': '(OCDS) 6. Implementación',
+        },
+        'schema_sheetname': {
+            'en': 'OCDS Schema 1.1.5',
+            'es': 'Esquema OCDS 1.1.5',
+        },
+        'schema_extensions_sheetname': {
+            'en': 'OCDS Extension Schemas 1.1.5',
+            'es': 'Esquemas de Extensiones OCDS 1.1.5',
+        },
     }
 
     lang = 'en'
