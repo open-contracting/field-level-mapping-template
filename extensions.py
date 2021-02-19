@@ -55,11 +55,11 @@ class ExtensionsInfo(object):
         else:
             # translate core extensions
 
-            translation_sources_dir = Path('ocds-extensions-translations-master')
+            translation_sources_dir = Path('ocds-extensions-translations-main')
             if translation_sources_dir.exists():
                 shutil.rmtree(str(translation_sources_dir))
 
-            res = requests.get('https://github.com/open-contracting/ocds-extensions-translations/archive/master.zip')
+            res = requests.get('https://github.com/open-contracting/ocds-extensions-translations/archive/main.zip')
             res.raise_for_status()
             content = BytesIO(res.content)
             with ZipFile(content) as zipfile:
