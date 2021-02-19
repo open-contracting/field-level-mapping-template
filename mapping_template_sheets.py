@@ -21,7 +21,7 @@ from ocdskit.schema import get_schema_fields
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 
-from template_generator.extensions import ExtensionsInfo
+from extensions import ExtensionsInfo
 
 
 class MappingTemplateSheetsGenerator(object):
