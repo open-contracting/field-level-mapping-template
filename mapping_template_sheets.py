@@ -16,25 +16,24 @@ except ImportError:
     # not running in a colab runtime, doesn't matter if running locally
     pass
 
-from ocdsextensionregistry import ProfileBuilder
+from ocdsextensionregistry import ExtensionVersion, ProfileBuilder
 from ocdskit.schema import get_schema_fields
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
-
-from extensions import ExtensionsInfo
 
 
 class MappingTemplateSheetsGenerator(object):
 
     extension_field = 'extension'
 
-    def __init__(self, strings=None, schema_url=None, extensions_info=None, mapping_sheet='mapping-sheet.csv',
-                 lang='en', save_to='drive'):
+    def __init__(self, strings=None, schema_url=None, extension_urls=None, extension_descriptions=None,
+                 mapping_sheet='mapping-sheet.csv', lang='en', save_to='drive'):
         self.strings = strings
         self.schema_url = schema_url
         self.mapping_sheet_file = mapping_sheet
         self.lang = lang
-        self.extensions_info = extensions_info
+        self.extension_urls = extension_urls
+        self.extension_descriptions = extension_descriptions
         self.field_extensions = {}
         self.save_to = save_to
 
@@ -61,8 +60,9 @@ class MappingTemplateSheetsGenerator(object):
         schema_response = requests.get(self.schema_url)
         schema = schema_response.json()
 
-        builder = ProfileBuilder(None, self.extensions_info.extension_urls)
-        schema = builder.patched_release_schema(schema=schema, extension_field=self.extension_field)
+        builder = ProfileBuilder(None, self.extension_urls)
+        schema = builder.patched_release_schema(schema=schema, extension_field=self.extension_field,
+                                                language=self.lang)
         schema = jsonref.JsonRef.replace_refs(schema)
         with open('release-schema.json', 'w') as f:
             jsonref.dump(schema, f)
@@ -288,7 +288,7 @@ class MappingTemplateSheetsGenerator(object):
                 sheets[name].append(['section', 0, self.get_string('extension_section')])
 
                 for extension_name, rows in extension_rows[name].items():
-                    text = extension_name + ': ' + self.extensions_info.get_description(extension_name)
+                    text = extension_name + ': ' + self.extension_descriptions[extension_name]
 
                     sheets[name].append(['extension', 0, text])
                     sheets[name].extend(rows)
@@ -449,16 +449,31 @@ if __name__ == '__main__':
 
     lang = 'en'
     schema_url = 'https://standard.open-contracting.org/1.1/en/release-schema.json'
-    info = ExtensionsInfo(lang=lang)
-    urls = info.load_extensions_info()
+
+    extension_urls = [
+        f'https://extensions.open-contracting.org/{lang}/extensions/bids/master/',
+        f'https://extensions.open-contracting.org/{lang}/extensions/enquiries/master/',
+        f'https://extensions.open-contracting.org/{lang}/extensions/location/master/',
+        f'https://extensions.open-contracting.org/{lang}/extensions/lots/master/',
+        f'https://extensions.open-contracting.org/{lang}/extensions/participation_fee/master/',
+        f'https://extensions.open-contracting.org/{lang}/extensions/process_title/master/',
+    ]
 
     with open('release-schema.json', 'w') as f:
         f.write(requests.get(schema_url).text)
 
     with open('mapping-sheet.csv', 'w') as f:
-        subprocess.run(['ocdskit', 'mapping-sheet', 'release-schema.json', '--extension'] + urls +
-                       ['--extension-field', 'extension'], stdout=f)
+        subprocess.run(['ocdskit', 'mapping-sheet', 'release-schema.json', '--extension'] + extension_urls +
+                       ['--extension-field', 'extension', '--language', lang], stdout=f)
 
-    g = MappingTemplateSheetsGenerator(lang=lang, schema_url=schema_url,
-                                       extensions_info=info, strings=strings, save_to='local')
+    extension_descriptions = {}
+    for extension_url in extension_urls:
+        data = dict.fromkeys(['Id', 'Date', 'Version', 'Base URL', 'Download URL'])
+        data['Base URL'] = extension_url
+        version = ExtensionVersion(data)
+        extension_descriptions[version.metadata['name'][lang]] = version.metadata['description'][lang]
+
+    g = MappingTemplateSheetsGenerator(lang=lang, schema_url=schema_url, extension_urls=extension_urls,
+                                       extension_descriptions=extension_descriptions, strings=strings,
+                                       save_to='local')
     g.generate_mapping_sheets()
