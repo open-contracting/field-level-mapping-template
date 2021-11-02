@@ -20,4 +20,6 @@ jobs:
       - run: curl -s -S --retry 3 $BASEDIR/tests/install.sh | bash -
       - run: curl -s -S --retry 3 $BASEDIR/tests/script.sh | bash -
       - run: pip install -r requirements.txt
-      - run: STANDARD_MAINTENANCE_SCRIPTS_IGNORE=google,oauth2client pytest /tmp/test_requirements.py
+      - env:
+          STANDARD_MAINTENANCE_SCRIPTS_IGNORE: google,oauth2client
+        run: pytest /tmp/test_requirements.py
