@@ -230,9 +230,16 @@ class MappingTemplateSheetsGenerator(object):
                 sheetname = 'general'
 
             if formatKey == 'title':
-                sheet_headers[sheetname].append([formatKey, depth, '{}: {}'.format(
-                    self.get_string('standard_name'), field.schema['title'])])
-                sheet_headers[sheetname].append(['subtitle', depth, field.schema['description']])
+                sheet_headers[sheetname].append([
+                    formatKey,
+                    depth,
+                    f"{self.get_string('standard_name')}: {field.schema['title']}",
+                ])
+                sheet_headers[sheetname].append([
+                    'subtitle',
+                    depth,
+                    field.schema['description'],
+                ])
                 continue
             else:
                 row = [formatPrefix + formatKey, depth, field.path]
@@ -248,9 +255,15 @@ class MappingTemplateSheetsGenerator(object):
 
         # add a static header for the General sheet
 
-        sheet_headers['general'].append(['title', depth, '{}: {}'.format(
-            self.get_string('standard_name'), self.get_string('general_title'))])
-        sheet_headers['general'].append(['subtitle', depth, self.get_string('general_help_text')])
+        sheet_headers['general'].append([
+            'title',
+            depth,
+            f"{self.get_string('standard_name')}: {self.get_string('general_title')}"])
+        sheet_headers['general'].append([
+            'subtitle',
+            depth,
+            self.get_string('general_help_text'),
+        ])
 
         # add headers for each sheet
         for name in mapping_sheetnames:
