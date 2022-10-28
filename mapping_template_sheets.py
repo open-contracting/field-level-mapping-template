@@ -63,7 +63,7 @@ class MappingTemplateSheetsGenerator(object):
         builder = ProfileBuilder(None, self.extension_urls)
         schema = builder.patched_release_schema(schema=schema, extension_field=self.extension_field,
                                                 language=self.lang)
-        schema = jsonref.JsonRef.replace_refs(schema)
+        schema = jsonref.replace_refs(schema)
         with open('release-schema.json', 'w') as f:
             jsonref.dump(schema, f)
         return schema
