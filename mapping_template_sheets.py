@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import csv
 import os
 import re
@@ -22,7 +21,7 @@ from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 
 
-class MappingTemplateSheetsGenerator(object):
+class MappingTemplateSheetsGenerator:
 
     extension_field = 'extension'
 
@@ -38,7 +37,7 @@ class MappingTemplateSheetsGenerator(object):
         self.save_to = save_to
 
         # read extension names per path from mapping-sheet
-        with open(self.mapping_sheet_file, 'r') as f:
+        with open(self.mapping_sheet_file) as f:
             reader = csv.DictReader(f, dialect='excel')
             row = next(reader)
             for row in reader:
