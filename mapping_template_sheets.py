@@ -2,7 +2,6 @@ import csv
 import os
 import re
 import subprocess
-from collections import OrderedDict
 from operator import itemgetter
 
 import jsonref
@@ -89,7 +88,7 @@ class MappingTemplateSheetsGenerator:
         sheets = {x: [] for x in sheetnames}
         sheet_headers = {x: [] for x in mapping_sheetnames}
 
-        extension_rows = {x: OrderedDict() for x in (
+        extension_rows = {x: {} for x in (
             'general',
             'planning',
             'tender',
@@ -130,7 +129,7 @@ class MappingTemplateSheetsGenerator:
 
         # create list for organization references to add to parties sheet
         org_refs = []
-        org_refs_extensions = OrderedDict()
+        org_refs_extensions = {}
 
         # set default depth for row grouping in Google Sheets
         depth = 0
