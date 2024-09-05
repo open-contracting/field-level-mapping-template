@@ -47,22 +47,20 @@ class MappingTemplateSheetsGenerator:
             reader = csv.DictReader(f, dialect="excel")
             row = next(reader)
             for row in reader:
-                if self.extension_field in row.keys() and row[self.extension_field]:
+                if row.get(self.extension_field):
                     self.field_extensions[row["path"]] = row[self.extension_field]
 
     def authenticate_pydrive(self):
         auth.authenticate_user()
         gauth = GoogleAuth()
         gauth.credentials = GoogleCredentials.get_application_default()
-        drive = GoogleDrive(gauth)
-
-        return drive
+        return GoogleDrive(gauth)
 
     def get_string(self, key):
         return self.strings[key][self.lang]
 
     def get_patched_schema(self):
-        schema_response = requests.get(self.schema_url)
+        schema_response = requests.get(self.schema_url, timeout=10)
         schema = schema_response.json()
 
         builder = ProfileBuilder(None, self.extension_urls)
@@ -80,7 +78,7 @@ class MappingTemplateSheetsGenerator:
 
         mapping_sheetnames = ("general", "planning", "tender", "awards", "contracts", "implementation")
 
-        sheetnames = mapping_sheetnames + ("schema", "schema_extensions")
+        sheetnames = (*mapping_sheetnames, "schema", "schema_extensions")
 
         # create list for each mapping sheet
         sheets = {x: [] for x in sheetnames}
@@ -127,10 +125,10 @@ class MappingTemplateSheetsGenerator:
         depth = 0
 
         # regular expression to find links in schema descriptions
-        INLINE_LINK_RE = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
+        inline_link_re = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
 
         # remove links from top-level schema description
-        links = dict(INLINE_LINK_RE.findall(schema["description"]))
+        links = dict(inline_link_re.findall(schema["description"]))
         for key, link in links.items():
             schema["description"] = schema["description"].replace("[" + key + "](" + link + ")", key)
 
@@ -163,18 +161,18 @@ class MappingTemplateSheetsGenerator:
 
             # set formatting keys for use in Google Sheets script
             if field_is_stage:
-                formatKey = "title"
+                format_key = "title"
             elif field.schema["type"] in ("object", "array"):
-                formatKey = "span"
+                format_key = "span"
             else:
-                formatKey = "field"
+                format_key = "field"
 
             if field_extension:
-                formatPrefix = "extension_"
+                format_prefix = "extension_"
             elif field.required:
-                formatPrefix = "required_"
+                format_prefix = "required_"
             else:
-                formatPrefix = ""
+                format_prefix = ""
 
             # add organization references to list for use in parties mapping sheet
             is_org_reference = (
@@ -188,12 +186,12 @@ class MappingTemplateSheetsGenerator:
             )
 
             if is_org_reference:
-                row = [formatPrefix + formatKey, 1, field.path]
+                row = [format_prefix + format_key, 1, field.path]
 
                 if field_extension:
                     # if the org reference belongs to an extension, save it in a separate dict
                     # with the name of the extension
-                    if field_extension not in org_refs_extensions.keys():
+                    if field_extension not in org_refs_extensions:
                         org_refs_extensions[field_extension] = []
                     org_refs_extensions[field_extension].append(row)
                 else:
@@ -221,10 +219,10 @@ class MappingTemplateSheetsGenerator:
                 sheet = sheets["general"]
                 sheetname = "general"
 
-            if formatKey == "title":
+            if format_key == "title":
                 sheet_headers[sheetname].append(
                     [
-                        formatKey,
+                        format_key,
                         depth,
                         f"{self.get_string('standard_name')}: {field.schema['title']}",
                     ]
@@ -237,11 +235,11 @@ class MappingTemplateSheetsGenerator:
                     ]
                 )
                 continue
-            else:
-                row = [formatPrefix + formatKey, depth, field.path]
+
+            row = [format_prefix + format_key, depth, field.path]
 
             if field_extension:
-                if field_extension not in extension_rows[sheetname].keys():
+                if field_extension not in extension_rows[sheetname]:
                     extension_rows[sheetname][field_extension] = []
                 extension_rows[sheetname][field_extension].append(row)
             else:
@@ -281,7 +279,7 @@ class MappingTemplateSheetsGenerator:
 
         for extension_name, orgs in org_refs_extensions.items():
             # insert extension name
-            if extension_name not in extension_rows["general"].keys():
+            if extension_name not in extension_rows["general"]:
                 extension_rows["general"][extension_name] = []
 
             # insert organizations
@@ -290,7 +288,7 @@ class MappingTemplateSheetsGenerator:
                 extension_rows["general"][extension_name].extend(extension_parties_rows)
 
         for name in mapping_sheetnames:
-            if len(extension_rows[name].keys()):
+            if len(extension_rows[name]):
                 # add extension section
 
                 # add section title
@@ -305,14 +303,14 @@ class MappingTemplateSheetsGenerator:
             # add additional fields section to each sheet
             sheets[name].append(["section", 0, self.get_string("additional_fields_note")])
 
-            for i in range(4):
+            for _ in range(4):
                 sheets[name].append(["additional_field", 0])  # was 1
 
             # make all rows have the same number of columns
             # (required for CSV parsing script in Google Sheets)
             for row in sheets[name]:
                 if len(row) < len(headers):
-                    for i in range(len(headers) - len(row)):
+                    for _ in range(len(headers) - len(row)):
                         row.append("")
 
         return self._save_sheets(sheets)
@@ -470,13 +468,22 @@ if __name__ == "__main__":
     ]
 
     with open("release-schema.json", "w") as f:
-        f.write(requests.get(schema_url).text)
+        f.write(requests.get(schema_url, timeout=10).text)
 
     with open("mapping-sheet.csv", "w") as f:
         subprocess.run(
-            ["ocdskit", "mapping-sheet", "release-schema.json", "--extension"]
-            + extension_urls
-            + ["--extension-field", "extension", "--language", lang],
+            [
+                "ocdskit",
+                "mapping-sheet",
+                "release-schema.json",
+                "--extension",
+                *extension_urls,
+                "--extension-field",
+                "extension",
+                "--language",
+                lang,
+            ],
+            check=True,
             stdout=f,
         )
 
