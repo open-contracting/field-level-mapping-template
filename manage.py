@@ -471,8 +471,8 @@ if __name__ == "__main__":
         f.write(requests.get(schema_url, timeout=10).text)
 
     with open("mapping-sheet.csv", "w") as f:
-        subprocess.run(
-            [
+        subprocess.run(  # noqa: S603 # trusted input
+            [  # noqa: S607
                 "ocdskit",
                 "mapping-sheet",
                 "release-schema.json",
