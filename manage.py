@@ -157,12 +157,12 @@ class MappingTemplateSheetsGenerator:
             field_extension = self.field_extensions.get(field.path, "")
 
             # is this field a top-level stage?
-            field_is_stage = field.path in ("planning", "tender", "awards", "contracts", "contracts/implementation")
+            field_is_stage = field.path in {"planning", "tender", "awards", "contracts", "contracts/implementation"}
 
             # set formatting keys for use in Google Sheets script
             if field_is_stage:
                 format_key = "title"
-            elif field.schema["type"] in ("object", "array"):
+            elif field.schema["type"] in {"object", "array"}:
                 format_key = "span"
             else:
                 format_key = "field"
@@ -202,7 +202,7 @@ class MappingTemplateSheetsGenerator:
             except ValueError:
                 path = field.path
 
-            if path in ("planning", "tender", "awards"):
+            if path in {"planning", "tender", "awards"}:
                 sheet = sheets[path]
                 sheetname = path
             elif path == "contracts":
