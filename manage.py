@@ -128,8 +128,7 @@ class MappingTemplateSheetsGenerator:
         inline_link_re = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
 
         # remove links from top-level schema description
-        links = dict(inline_link_re.findall(schema["description"]))
-        for key, link in links.items():
+        for key, link in inline_link_re.findall(schema["description"]):
             schema["description"] = schema["description"].replace("[" + key + "](" + link + ")", key)
 
         # add header rows to each sheet
