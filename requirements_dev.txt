@@ -17,7 +17,7 @@ certifi==2020.12.5
     # via
     #   -r requirements.txt
     #   requests
-chardet==4.0.0
+charset-normalizer==3.4.0
     # via
     #   -r requirements.txt
     #   requests
@@ -119,7 +119,7 @@ pyyaml==6.0.1
     # via
     #   -r requirements.txt
     #   pydrive
-requests==2.25.1
+requests==2.32.2
     # via
     #   -r requirements.txt
     #   google-api-core
@@ -135,11 +135,6 @@ rsa==4.7.1
     #   -r requirements.txt
     #   google-auth
     #   oauth2client
-setuptools==74.1.1
-    # via
-    #   -r requirements.txt
-    #   google-api-core
-    #   google-auth
 six==1.15.0
     # via
     #   -r requirements.txt
