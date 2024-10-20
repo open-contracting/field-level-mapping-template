@@ -10,7 +10,7 @@ cattrs==24.1.1
     # via requests-cache
 certifi==2020.12.5
     # via requests
-chardet==4.0.0
+charset-normalizer==3.4.0
     # via requests
 google-api-core==1.26.0
     # via google-api-python-client
@@ -77,7 +77,7 @@ pytz==2021.1
     # via google-api-core
 pyyaml==6.0.1
     # via pydrive
-requests==2.25.1
+requests==2.32.2
     # via
     #   -r requirements.in
     #   google-api-core
@@ -90,10 +90,6 @@ rsa==4.7.1
     # via
     #   google-auth
     #   oauth2client
-setuptools==74.1.1
-    # via
-    #   google-api-core
-    #   google-auth
 six==1.15.0
     # via
     #   google-api-core
