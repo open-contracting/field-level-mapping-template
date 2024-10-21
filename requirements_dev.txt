@@ -13,7 +13,7 @@ cattrs==24.1.1
     # via
     #   -r requirements.txt
     #   requests-cache
-certifi==2020.12.5
+certifi==2024.7.4
     # via
     #   -r requirements.txt
     #   requests
