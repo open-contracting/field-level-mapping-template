@@ -161,7 +161,7 @@ class MappingTemplateSheetsGenerator:
             # set formatting keys for use in Google Sheets script
             if field_is_stage:
                 format_key = "title"
-            elif field.schema["type"] in {"object", "array"}:
+            elif field.schema["type"] in ("object", "array"):
                 format_key = "span"
             else:
                 format_key = "field"
@@ -458,6 +458,7 @@ if __name__ == "__main__":
     schema_url = "https://standard.open-contracting.org/1.1/en/release-schema.json"
 
     extension_urls = [
+        f"https://extensions.open-contracting.org/{lang}/extensions/submissionTerms/master/",
         f"https://extensions.open-contracting.org/{lang}/extensions/bids/master/",
         f"https://extensions.open-contracting.org/{lang}/extensions/enquiries/master/",
         f"https://extensions.open-contracting.org/{lang}/extensions/location/master/",
