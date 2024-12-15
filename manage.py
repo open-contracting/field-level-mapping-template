@@ -15,6 +15,7 @@ except ImportError:
     pass
 
 from ocdsextensionregistry import ExtensionVersion, ProfileBuilder
+from ocdsextensionregistry.util import replace_refs
 from ocdskit.schema import get_schema_fields
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
@@ -67,7 +68,7 @@ class MappingTemplateSheetsGenerator:
         schema = builder.patched_release_schema(
             schema=schema, extension_field=self.extension_field, language=self.lang
         )
-        schema = jsonref.replace_refs(schema)
+        schema = replace_refs(schema)
         with open("release-schema.json", "w") as f:
             jsonref.dump(schema, f)
         return schema
@@ -145,8 +146,7 @@ class MappingTemplateSheetsGenerator:
 
         # add row to mapping sheet for each field in the schema
         for field in get_schema_fields(schema):
-            # skip definitions section of schema, and deprecated fields
-            if field.definition_pointer_components or field.deprecated:
+            if field.deprecated:
                 continue
 
             # set separator to use in field paths in output
@@ -174,17 +174,11 @@ class MappingTemplateSheetsGenerator:
                 format_prefix = ""
 
             # add organization references to list for use in parties mapping sheet
-            is_org_reference = (
-                hasattr(field.schema, "__reference__")
-                and field.schema.__reference__["$ref"]
-                == "#/definitions/" + self.get_string("organization_reference_code")
-            ) or (
-                "items" in field.schema
-                and "title" in field.schema["items"]
-                and field.schema["items"]["title"] == self.get_string("organization_reference_title")
-            )
-
-            if is_org_reference:
+            title = self.get_string("organization_reference_id_title")
+            if (
+                field.schema.get("properties", {}).get("id", {}).get("title") == title
+                or field.schema.get("items", {}).get("properties", {}).get("id", {}).get("title") == title
+            ):
                 row = [format_prefix + format_key, 1, field.path]
 
                 if field_extension:
@@ -396,13 +390,9 @@ if __name__ == "__main__":
             "en": "Open Contracting Data Standard",
             "es": "Estándar de Datos de Contrataciones Abiertas",
         },
-        "organization_reference_code": {
-            "en": "OrganizationReference",
-            "es": "Referencia de la organización",
-        },
-        "organization_reference_title": {
-            "en": "Organization reference",
-            "es": "Referencia de la organización",
+        "organization_reference_id_title": {
+            "en": "Organization ID",
+            "es": "ID de Organización",
         },
         "overview": {
             "en": "Field Level Mapping Overview",
