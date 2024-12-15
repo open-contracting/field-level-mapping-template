@@ -50,7 +50,7 @@ ocdsextensionregistry==0.5.0
     #   ocdskit
 ocdskit==1.2.0
     # via -r requirements.in
-ocdsmerge==0.6.4
+ocdsmerge==0.7.0
     # via ocdskit
 packaging==23.2
     # via google-api-core
@@ -77,7 +77,7 @@ pytz==2021.1
     # via google-api-core
 pyyaml==6.0.1
     # via pydrive
-requests==2.32.2
+requests==2.32.3
     # via
     #   -r requirements.in
     #   google-api-core
@@ -94,7 +94,7 @@ setuptools==75.2.0
     # via
     #   google-api-core
     #   google-auth
-six==1.15.0
+six==1.17.0
     # via
     #   google-api-core
     #   google-api-python-client
@@ -106,7 +106,7 @@ uritemplate==3.0.1
     # via google-api-python-client
 url-normalize==1.4.3
     # via requests-cache
-urllib3==1.26.19
+urllib3==2.2.3
     # via
     #   requests
     #   requests-cache
