@@ -135,11 +135,6 @@ rsa==4.7.1
     #   -r requirements.txt
     #   google-auth
     #   oauth2client
-setuptools==75.2.0
-    # via
-    #   -r requirements.txt
-    #   google-api-core
-    #   google-auth
 six==1.17.0
     # via
     #   -r requirements.txt
