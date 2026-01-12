@@ -1,7 +1,6 @@
 import csv
 import gettext
 import logging
-import os
 import re
 from operator import itemgetter
 from pathlib import Path
@@ -25,6 +24,7 @@ from pydrive.drive import GoogleDrive
 
 logger = logging.getLogger(__name__)
 localedir = Path(__file__).absolute().parent / "locale"
+outputdir = Path("output")
 
 
 class MappingTemplateSheetsGenerator:
@@ -34,12 +34,14 @@ class MappingTemplateSheetsGenerator:
         self,
         schema=None,
         extension_descriptions=None,
-        mapping_sheet="mapping-sheet.csv",
+        mapping_fieldnames=(),
+        mapping_rows=(),
         lang="en",
         save_to="drive",
     ):
         self.schema = replace_refs(schema)
-        self.mapping_sheet_file = mapping_sheet
+        self.mapping_fieldnames = mapping_fieldnames
+        self.mapping_rows = mapping_rows
         self.lang = lang
         self.extension_descriptions = extension_descriptions
         self.field_extensions = {}
@@ -47,12 +49,9 @@ class MappingTemplateSheetsGenerator:
         self._ = gettext.translation("messages", localedir, languages=[lang], fallback=lang == "en").gettext
 
         # read extension names per path from mapping-sheet
-        with open(self.mapping_sheet_file) as f:
-            reader = csv.DictReader(f, dialect="excel")
-            row = next(reader)
-            for row in reader:
-                if row.get(self.extension_field):
-                    self.field_extensions[row["path"]] = row[self.extension_field]
+        for row in mapping_rows:
+            if row.get(self.extension_field):
+                self.field_extensions[row["path"]] = row[self.extension_field]
 
     def authenticate_pydrive(self):
         auth.authenticate_user()
@@ -74,21 +73,18 @@ class MappingTemplateSheetsGenerator:
         }
 
         # use the mapping sheet to load the schema and schema_extensions tabs
-        header = []
-        with open(self.mapping_sheet_file) as csvfile:
-            readme = csv.reader(csvfile, dialect="excel")
-            header = next(readme)
+        sheets["schema"].append(self.mapping_fieldnames[:-1])
 
-            sheets["schema"].append(header[:-1])
+        for row in self.mapping_rows:
+            if "links" in row:
+                row["links"] = row["links"].replace("1.1-dev", "1.1.5")
 
-            for row in readme:
-                url = row[7]
-                url = url.replace("1.1-dev", "1.1.5")
-                row[7] = url
-                if row[10]:
-                    sheets["schema_extensions"].append(row)
-                else:
-                    sheets["schema"].append(row[:-1])
+            values = [row.get(field, "") for field in self.mapping_fieldnames]
+
+            if row.get(self.extension_field):
+                sheets["schema_extensions"].append(values)
+            else:
+                sheets["schema"].append(values[:-1])
 
         # move the extension column to the beginning
         sheets["schema_extensions"] = [row[-1:] + row[1:-1] for row in sheets["schema_extensions"]]
@@ -97,7 +93,9 @@ class MappingTemplateSheetsGenerator:
         sheets["schema_extensions"].sort(key=itemgetter(0, 1))
 
         # add header
-        sheets["schema_extensions"] = [header[-1:] + header[1:-1]] + sheets["schema_extensions"]
+        sheets["schema_extensions"] = [self.mapping_fieldnames[-1:] + self.mapping_fieldnames[1:-1]] + sheets[
+            "schema_extensions"
+        ]
 
         # create list for fields to repeat on parties sheet
         parties_rows = []
@@ -341,27 +339,19 @@ class MappingTemplateSheetsGenerator:
             "schema_extensions": self._("OCDS Extension Schemas 1.1.5"),
         }
 
-        outputs = []
-        for key, value in sheets.items():
-            outputs.append(
-                {
-                    "sheet": value,
-                    "file": os.path.join("output", key + "_mapping.csv"),
-                    "sheetname": sheetname_map.get(key, key),
-                }
-            )
-
         ids = []
 
-        os.makedirs("output", exist_ok=True)
-        for output in outputs:
-            with open(output["file"], "w", encoding="utf8", newline="") as output_file:
-                writer = csv.writer(output_file, dialect="excel")
-                writer.writerows(output["sheet"])
+        outputdir.mkdir(exist_ok=True)
+        for key, sheet in sheets.items():
+            path = outputdir / f"{key}_mapping.csv"
+
+            with path.open("w", encoding="utf8", newline="") as f:
+                writer = csv.writer(f, dialect="excel")
+                writer.writerows(sheet)
 
             if self.save_to == "drive":
-                uploaded = drive.CreateFile({"title": output["sheetname"]})
-                uploaded.SetContentFile(output["file"])
+                uploaded = drive.CreateFile({"title": sheetname_map[key]})
+                uploaded.SetContentFile(str(path))
                 uploaded.Upload()
                 ids.append(uploaded.get("id"))
 
@@ -432,10 +422,6 @@ def main(lang, schema_url, extension_urls, recommended, save_to):
         schema = builder.patched_release_schema(schema=schema, extension_field="extension", language=lang)
 
     fieldnames, rows = mapping_sheet(schema, extension_field="extension", infer_required=True)
-    with open("mapping-sheet.csv", "w") as f:
-        writer = csv.DictWriter(f, fieldnames, lineterminator="\n")
-        writer.writeheader()
-        writer.writerows(rows)
 
     extension_descriptions = {}
     for extension_url in extension_urls:
@@ -447,6 +433,8 @@ def main(lang, schema_url, extension_urls, recommended, save_to):
     g = MappingTemplateSheetsGenerator(
         schema=schema,
         extension_descriptions=extension_descriptions,
+        mapping_fieldnames=fieldnames,
+        mapping_rows=rows,
         lang=lang,
         save_to=save_to,
     )
