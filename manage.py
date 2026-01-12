@@ -26,6 +26,18 @@ logger = logging.getLogger(__name__)
 localedir = Path(__file__).absolute().parent / "locale"
 outputdir = Path("output")
 
+GENERAL = "general"
+PLANNING = "planning"
+TENDER = "tender"
+AWARDS = "awards"
+CONTRACTS = "contracts"
+IMPLEMENTATION = "implementation"
+PARTIES = "parties"
+SCHEMA = "schema"
+SCHEMA_EXTENSIONS = "schema_extensions"
+
+SHEET_NAMES = (GENERAL, PLANNING, TENDER, AWARDS, CONTRACTS, IMPLEMENTATION)
+
 
 class MappingTemplateSheetsGenerator:
     extension_field = "extension"
@@ -60,20 +72,14 @@ class MappingTemplateSheetsGenerator:
         return GoogleDrive(gauth)
 
     def generate_mapping_sheets(self):
-        mapping_sheetnames = ("general", "planning", "tender", "awards", "contracts", "implementation")
-
-        sheetnames = (*mapping_sheetnames, "schema", "schema_extensions")
-
         # create list for each mapping sheet
-        sheets = {x: [] for x in sheetnames}
-        sheet_headers = {x: [] for x in mapping_sheetnames}
+        sheets = {x: [] for x in (*SHEET_NAMES, SCHEMA, SCHEMA_EXTENSIONS)}
+        sheet_headers = {x: [] for x in SHEET_NAMES}
 
-        extension_rows = {
-            x: {} for x in ("general", "planning", "tender", "awards", "contracts", "implementation", "parties")
-        }
+        extension_rows = {x: {} for x in (GENERAL, PLANNING, TENDER, AWARDS, CONTRACTS, IMPLEMENTATION, PARTIES)}
 
         # use the mapping sheet to load the schema and schema_extensions tabs
-        sheets["schema"].append(self.mapping_fieldnames[:-1])
+        sheets[SCHEMA].append(self.mapping_fieldnames[:-1])
 
         for row in self.mapping_rows:
             if "links" in row:
@@ -82,19 +88,19 @@ class MappingTemplateSheetsGenerator:
             values = [row.get(field, "") for field in self.mapping_fieldnames]
 
             if row.get(self.extension_field):
-                sheets["schema_extensions"].append(values)
+                sheets[SCHEMA_EXTENSIONS].append(values)
             else:
-                sheets["schema"].append(values[:-1])
+                sheets[SCHEMA].append(values[:-1])
 
         # move the extension column to the beginning
-        sheets["schema_extensions"] = [row[-1:] + row[1:-1] for row in sheets["schema_extensions"]]
+        sheets[SCHEMA_EXTENSIONS] = [row[-1:] + row[1:-1] for row in sheets[SCHEMA_EXTENSIONS]]
 
         # sort the Extension Schemas by extension, stage and path
-        sheets["schema_extensions"].sort(key=itemgetter(0, 1))
+        sheets[SCHEMA_EXTENSIONS].sort(key=itemgetter(0, 1))
 
         # add header
-        sheets["schema_extensions"] = [self.mapping_fieldnames[-1:] + self.mapping_fieldnames[1:-1]] + sheets[
-            "schema_extensions"
+        sheets[SCHEMA_EXTENSIONS] = [self.mapping_fieldnames[-1:] + self.mapping_fieldnames[1:-1]] + sheets[
+            SCHEMA_EXTENSIONS
         ]
 
         # create list for fields to repeat on parties sheet
@@ -177,22 +183,22 @@ class MappingTemplateSheetsGenerator:
             except ValueError:
                 path = field.path
 
-            if path in {"planning", "tender", "awards"}:
+            if path in {PLANNING, TENDER, AWARDS}:
                 sheet = sheets[path]
                 sheetname = path
-            elif path == "contracts":
+            elif path == CONTRACTS:
                 if "contracts/implementation" in field.path:
-                    sheet = sheets["implementation"]
-                    sheetname = "implementation"
+                    sheet = sheets[IMPLEMENTATION]
+                    sheetname = IMPLEMENTATION
                 else:
-                    sheet = sheets["contracts"]
-                    sheetname = "contracts"
-            elif path == "parties":
+                    sheet = sheets[CONTRACTS]
+                    sheetname = CONTRACTS
+            elif path == PARTIES:
                 sheet = parties_rows
-                sheetname = "parties"
+                sheetname = PARTIES
             else:
-                sheet = sheets["general"]
-                sheetname = "general"
+                sheet = sheets[GENERAL]
+                sheetname = GENERAL
 
             if format_key == "title":
                 sheet_headers[sheetname].append(
@@ -223,10 +229,10 @@ class MappingTemplateSheetsGenerator:
 
         # add a static header for the General sheet
 
-        sheet_headers["general"].append(
+        sheet_headers[GENERAL].append(
             ["title", depth, "{}: {}".format(self._("Open Contracting Data Standard"), self._("General (all stages)"))]
         )
-        sheet_headers["general"].append(
+        sheet_headers[GENERAL].append(
             [
                 "subtitle",
                 depth,
@@ -239,11 +245,11 @@ class MappingTemplateSheetsGenerator:
         )
 
         # add headers for each sheet
-        for name in mapping_sheetnames:
+        for name in SHEET_NAMES:
             sheets[name] = sheet_headers[name] + [headers] + sheets[name]
 
         # repeat fields from parties section for each organization reference
-        sheets["general"].append(
+        sheets[GENERAL].append(
             [
                 "subtitle",
                 depth,
@@ -258,8 +264,8 @@ class MappingTemplateSheetsGenerator:
 
         for ref in org_refs:
             ref[0] = "ref_span"
-            sheets["general"].append(ref)
-            sheets["general"].extend(parties_rows[1:])
+            sheets[GENERAL].append(ref)
+            sheets[GENERAL].extend(parties_rows[1:])
 
         # add organizations from extensions
 
@@ -268,14 +274,14 @@ class MappingTemplateSheetsGenerator:
         for extension_name, orgs in org_refs_extensions.items():
             # insert extension name
             if extension_name not in extension_rows["general"]:
-                extension_rows["general"][extension_name] = []
+                extension_rows[GENERAL][extension_name] = []
 
             # insert organizations
             for org in orgs:
-                extension_rows["general"][extension_name].append(org)
-                extension_rows["general"][extension_name].extend(extension_parties_rows)
+                extension_rows[GENERAL][extension_name].append(org)
+                extension_rows[GENERAL][extension_name].extend(extension_parties_rows)
 
-        for name in mapping_sheetnames:
+        for name in SHEET_NAMES:
             if len(extension_rows[name]):
                 # add extension section
 
@@ -328,15 +334,15 @@ class MappingTemplateSheetsGenerator:
             # save CSVs and upload to Google Drive
             drive = self.authenticate_pydrive()
 
-        sheetname_map = {
-            "general": self._("(OCDS) 1. General (all stages)"),
-            "planning": self._("(OCDS) 2. Planning"),
-            "tender": self._("(OCDS) 3. Tender"),
-            "awards": self._("(OCDS) 4. Award"),
-            "contracts": self._("(OCDS) 5. Contract"),
-            "implementation": self._("(OCDS) 6. Implementation"),
-            "schema": self._("OCDS Schema 1.1.5"),
-            "schema_extensions": self._("OCDS Extension Schemas 1.1.5"),
+        sheet_titles = {
+            GENERAL: self._("(OCDS) 1. General (all stages)"),
+            PLANNING: self._("(OCDS) 2. Planning"),
+            TENDER: self._("(OCDS) 3. Tender"),
+            AWARDS: self._("(OCDS) 4. Award"),
+            CONTRACTS: self._("(OCDS) 5. Contract"),
+            IMPLEMENTATION: self._("(OCDS) 6. Implementation"),
+            SCHEMA: self._("OCDS Schema 1.1.5"),
+            SCHEMA_EXTENSIONS: self._("OCDS Extension Schemas 1.1.5"),
         }
 
         ids = []
@@ -350,7 +356,7 @@ class MappingTemplateSheetsGenerator:
                 writer.writerows(sheet)
 
             if self.save_to == "drive":
-                uploaded = drive.CreateFile({"title": sheetname_map[key]})
+                uploaded = drive.CreateFile({"title": sheet_titles[key]})
                 uploaded.SetContentFile(str(path))
                 uploaded.Upload()
                 ids.append(uploaded.get("id"))
