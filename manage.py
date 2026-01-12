@@ -4,6 +4,7 @@ import re
 import subprocess
 from operator import itemgetter
 
+import click
 import jsonref
 import requests
 
@@ -340,8 +341,9 @@ class MappingTemplateSheetsGenerator:
         return ids
 
 
-if __name__ == "__main__":
-    strings = {
+def get_strings():
+    """Return the strings dictionary for UI labels in multiple languages."""
+    return {
         "path_header": {
             "en": "Path",
             "es": "Rutas",
@@ -444,18 +446,61 @@ if __name__ == "__main__":
         },
     }
 
-    lang = "en"
-    schema_url = "https://standard.open-contracting.org/1.1/en/release-schema.json"
+
+@click.command()
+@click.option(
+    "-l",
+    "--lang",
+    type=click.Choice(["en", "es"]),
+    default="en",
+    show_default=True,
+    help="Schema language",
+)
+@click.option(
+    "-s",
+    "--schema-url",
+    metavar="URL",
+    help="OCDS release schema URL (default: https://standard.open-contracting.org/1.1/[lang]/release-schema.json)",
+)
+@click.option(
+    "-e",
+    "--extension",
+    "extension_urls",
+    multiple=True,
+    metavar="URL",
+    help="Extension URL like https://extensions.open-contracting.org/en/extensions/lots/master/ or identifier like "
+    "lots/master (can be specified multiple times)",
+)
+@click.option(
+    "--recommended",
+    is_flag=True,
+    help="Include all recommended extensions (bids, enquiries, location, lots, participation_fee, process_title)",
+)
+@click.option(
+    "--save-to",
+    type=click.Choice(["local", "drive"]),
+    default="local",
+    show_default=True,
+    help="Where to save output files ('drive' requires authentication for Google Drive)",
+)
+def main(lang, schema_url, extension_urls, recommended, save_to):
+    """Generate OCDS field-level mapping template sheets."""
+    if not schema_url:
+        schema_url = f"https://standard.open-contracting.org/1.1/{lang}/release-schema.json"
+
+    if recommended:
+        extension_urls.extend(
+            f"{e}/v1.1.5" for e in ("bids", "enquiries", "location", "lots", "participation_fee", "process_title")
+        )
 
     extension_urls = [
-        f"https://extensions.open-contracting.org/{lang}/extensions/submissionTerms/master/",
-        f"https://extensions.open-contracting.org/{lang}/extensions/bids/master/",
-        f"https://extensions.open-contracting.org/{lang}/extensions/enquiries/master/",
-        f"https://extensions.open-contracting.org/{lang}/extensions/location/master/",
-        f"https://extensions.open-contracting.org/{lang}/extensions/lots/master/",
-        f"https://extensions.open-contracting.org/{lang}/extensions/participation_fee/master/",
-        f"https://extensions.open-contracting.org/{lang}/extensions/process_title/master/",
+        extension_url
+        if extension_url.startswith(("http://", "https://"))
+        else f"https://extensions.open-contracting.org/{lang}/extensions/{extension_url}/"
+        for extension_url in extension_urls
     ]
+
+    strings = get_strings()
 
     with open("release-schema.json", "w") as f:
         f.write(requests.get(schema_url, timeout=10).text)
@@ -490,6 +535,10 @@ if __name__ == "__main__":
         extension_urls=extension_urls,
         extension_descriptions=extension_descriptions,
         strings=strings,
-        save_to="local",
+        save_to=save_to,
     )
     g.generate_mapping_sheets()
+
+
+if __name__ == "__main__":
+    main()

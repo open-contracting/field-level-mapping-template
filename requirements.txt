@@ -12,6 +12,8 @@ certifi==2024.7.4
     # via requests
 charset-normalizer==3.4.0
     # via requests
+click==8.3.1
+    # via -r requirements.in
 google-api-core==1.26.0
     # via google-api-python-client
 google-api-python-client==1.12.8
@@ -90,6 +92,10 @@ rsa==4.7.1
     # via
     #   google-auth
     #   oauth2client
+setuptools==80.9.0
+    # via
+    #   google-api-core
+    #   google-auth
 six==1.17.0
     # via
     #   google-api-core

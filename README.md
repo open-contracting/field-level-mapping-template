@@ -5,3 +5,15 @@ The [OCDS Field-Level Mapping Template](https://www.open-contracting.org/resourc
 This repository contains Python code used to generate CSV files, which are used to create some of the sheets in the Field Level Mapping Template.
 
 Issues for the improvement and generation of the Field Level Mapping Template are also logged here.
+
+## Installation
+
+```bash
+pip install -r requirements.txt
+```
+
+## Usage
+
+```bash
+python manage.py --help
+```
