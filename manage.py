@@ -3,12 +3,10 @@ import gettext
 import logging
 import os
 import re
-import subprocess
 from operator import itemgetter
 from pathlib import Path
 
 import click
-import jsonref
 import requests
 
 try:
@@ -20,6 +18,7 @@ except ImportError:
 
 from ocdsextensionregistry import ExtensionVersion, ProfileBuilder
 from ocdsextensionregistry.util import replace_refs
+from ocdskit.mapping_sheet import mapping_sheet
 from ocdskit.schema import get_schema_fields
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
@@ -33,17 +32,15 @@ class MappingTemplateSheetsGenerator:
 
     def __init__(
         self,
-        schema_url=None,
-        extension_urls=None,
+        schema=None,
         extension_descriptions=None,
         mapping_sheet="mapping-sheet.csv",
         lang="en",
         save_to="drive",
     ):
-        self.schema_url = schema_url
+        self.schema = replace_refs(schema)
         self.mapping_sheet_file = mapping_sheet
         self.lang = lang
-        self.extension_urls = extension_urls
         self.extension_descriptions = extension_descriptions
         self.field_extensions = {}
         self.save_to = save_to
@@ -63,23 +60,7 @@ class MappingTemplateSheetsGenerator:
         gauth.credentials = GoogleCredentials.get_application_default()
         return GoogleDrive(gauth)
 
-    def get_patched_schema(self):
-        schema_response = requests.get(self.schema_url, timeout=10)
-        schema = schema_response.json()
-
-        builder = ProfileBuilder(None, self.extension_urls)
-        schema = builder.patched_release_schema(
-            schema=schema, extension_field=self.extension_field, language=self.lang
-        )
-        schema = replace_refs(schema)
-        with open("release-schema.json", "w") as f:
-            jsonref.dump(schema, f)
-        return schema
-
     def generate_mapping_sheets(self):
-        # get schema
-        schema = self.get_patched_schema()
-
         mapping_sheetnames = ("general", "planning", "tender", "awards", "contracts", "implementation")
 
         sheetnames = (*mapping_sheetnames, "schema", "schema_extensions")
@@ -132,8 +113,8 @@ class MappingTemplateSheetsGenerator:
         inline_link_re = re.compile(r"\[([^\]]+)\]\(([^)]+)\)")
 
         # remove links from top-level schema description
-        for key, link in inline_link_re.findall(schema["description"]):
-            schema["description"] = schema["description"].replace("[" + key + "](" + link + ")", key)
+        for key, link in inline_link_re.findall(self.schema["description"]):
+            self.schema["description"] = self.schema["description"].replace("[" + key + "](" + link + ")", key)
 
         # add header rows to each sheet
         headers = [
@@ -148,7 +129,7 @@ class MappingTemplateSheetsGenerator:
         ]
 
         # add row to mapping sheet for each field in the schema
-        for field in get_schema_fields(schema):
+        for field in get_schema_fields(self.schema):
             if field.deprecated:
                 continue
 
@@ -428,6 +409,7 @@ def main(lang, schema_url, extension_urls, recommended, save_to):
     if not schema_url:
         schema_url = f"https://standard.open-contracting.org/1.1/{lang}/release-schema.json"
 
+    extension_urls = list(extension_urls)
     if recommended:
         extension_urls.extend(
             f"{e}/v1.1.5" for e in ("bids", "enquiries", "location", "lots", "participation_fee", "process_title")
@@ -440,25 +422,20 @@ def main(lang, schema_url, extension_urls, recommended, save_to):
         for extension_url in extension_urls
     ]
 
-    with open("release-schema.json", "w") as f:
-        f.write(requests.get(schema_url, timeout=10).text)
+    response = requests.get(schema_url, timeout=10)
+    response.raise_for_status()
+    schema = response.json()
 
+    # See ocdskit/commands/mapping_sheet.py
+    if extension_urls:
+        builder = ProfileBuilder(None, extension_urls)
+        schema = builder.patched_release_schema(schema=schema, extension_field="extension", language=lang)
+
+    fieldnames, rows = mapping_sheet(schema, extension_field="extension", infer_required=True)
     with open("mapping-sheet.csv", "w") as f:
-        subprocess.run(  # noqa: S603 # trusted input
-            [  # noqa: S607
-                "ocdskit",
-                "mapping-sheet",
-                "release-schema.json",
-                "--extension",
-                *extension_urls,
-                "--extension-field",
-                "extension",
-                "--language",
-                lang,
-            ],
-            check=True,
-            stdout=f,
-        )
+        writer = csv.DictWriter(f, fieldnames, lineterminator="\n")
+        writer.writeheader()
+        writer.writerows(rows)
 
     extension_descriptions = {}
     for extension_url in extension_urls:
@@ -468,10 +445,9 @@ def main(lang, schema_url, extension_urls, recommended, save_to):
         extension_descriptions[version.metadata["name"][lang]] = version.metadata["description"][lang]
 
     g = MappingTemplateSheetsGenerator(
-        lang=lang,
-        schema_url=schema_url,
-        extension_urls=extension_urls,
+        schema=schema,
         extension_descriptions=extension_descriptions,
+        lang=lang,
         save_to=save_to,
     )
     g.generate_mapping_sheets()
