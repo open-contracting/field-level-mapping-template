@@ -1,0 +1,15 @@
+name: Translations
+on:
+  pull_request: {}
+  push:
+    branches: [main]
+jobs:
+  i18n:
+    uses: open-contracting/.github/.github/workflows/i18n-babel.yml@main
+    permissions:
+      contents: read
+    with:
+      command: |
+        pybabel extract -F pyproject.toml -o locale/messages.pot .
+        pybabel update -N -i locale/messages.pot -d locale
+      dependencies: -r requirements.txt

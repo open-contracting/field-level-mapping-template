@@ -1,0 +1,137 @@
+# Spanish translations for PROJECT.
+# Copyright (C) 2026 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-01-12 12:43-0500\n"
+"PO-Revision-Date: 2026-01-12 11:52-0500\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: es\n"
+"Language-Team: es <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: manage.py:149
+msgid "Path"
+msgstr "Rutas"
+
+#: manage.py:150
+msgid "Title"
+msgstr "Título"
+
+#: manage.py:151
+msgid "Description"
+msgstr "Descripción"
+
+#: manage.py:152
+msgid "Mapping"
+msgstr "Mapear"
+
+#: manage.py:153
+msgid "Example"
+msgstr "Ejemplo"
+
+#: manage.py:154
+msgid "Notes"
+msgstr "Notas"
+
+#: manage.py:187
+msgid "Organization ID"
+msgstr "ID de Organización"
+
+#: manage.py:230 manage.py:255
+msgid "Open Contracting Data Standard"
+msgstr "Estándar de Datos de Contrataciones Abiertas"
+
+#: manage.py:255
+msgid "General (all stages)"
+msgstr "General (todas las etapas)"
+
+#: manage.py:262
+msgid ""
+"Fields in this section apply at release level. Each release provides data"
+" about a single contracting process at a particular point in time. "
+"Releases can be used to notify users of new tenders, awards, contracts, "
+"and other updates"
+msgstr ""
+"Los campos de esta sección aplican a nivel de entrega. Cada entrega "
+"provee datos sobre un proceso de contratación único en un momento "
+"particular en el tiempo. Las entregas pueden ser usadas para notificar a "
+"los usuarios de nuevas licitaciones, adjudicaciones y otras "
+"actualizaciones."
+
+#: manage.py:279
+msgid ""
+"Parties: Information on the parties (organizations, economic operators "
+"and other participants) who are involved in the contracting process and "
+"their roles, e.g. buyer, procuring entity, supplier etc. Organization "
+"references elsewhere in the schema are used to refer back to this entries"
+" in this list."
+msgstr ""
+"Partes: Información sobre las partes (organizaciones, operadores "
+"económicos y otros participantes) que están involucrados en el proceso de"
+" contratación y sus roles, ej. comprador, entidad contratante, proveedor,"
+" etc. Las referencias a organizaciones en otros lugares del esquema son "
+"usados para referirse de vuelta a estas entradas en la lista."
+
+#: manage.py:316
+msgid ""
+"Extensions are additions to the core OCDS schema which allow publishers "
+"to include extra information in their OCDS data. The following extensions"
+" are available for the present section:"
+msgstr ""
+"Las extensiones son adiciones al esquema OCDS principal que permiten que "
+"los publicadores incluyan información extra en sus datos OCDS. Las "
+"siguientes extensiones están disponibles para la presente sección:"
+
+#: manage.py:335
+msgid ""
+"If you have additional information applicable at this level and not "
+"covered by the core OCDS schema or extensions, list the data items below,"
+" along with a proposed description. This information can be used to "
+"develop new OCDS extensions."
+msgstr ""
+"Si tiene información adicional que aplique a este nivel y que no está "
+"cubierto por el esquema OCDS principal o extensiones, agregue los "
+"elementos de datos a continuación, junto con una descripción propuesta. "
+"Esta información podrá ser utilizada para crear nuevas extensiones OCDS."
+
+#: manage.py:360
+msgid "(OCDS) 1. General (all stages)"
+msgstr "(OCDS) 1. General (todas las etapas)"
+
+#: manage.py:361
+msgid "(OCDS) 2. Planning"
+msgstr "(OCDS) 2. Planificación"
+
+#: manage.py:362
+msgid "(OCDS) 3. Tender"
+msgstr "(OCDS) 3. Licitación"
+
+#: manage.py:363
+msgid "(OCDS) 4. Award"
+msgstr "(OCDS) 4. Adjudicación"
+
+#: manage.py:364
+msgid "(OCDS) 5. Contract"
+msgstr "(OCDS) 5. Contrato"
+
+#: manage.py:365
+msgid "(OCDS) 6. Implementation"
+msgstr "(OCDS) 6. Implementación"
+
+#: manage.py:366
+msgid "OCDS Schema 1.1.5"
+msgstr "Esquema OCDS 1.1.5"
+
+#: manage.py:367
+msgid "OCDS Extension Schemas 1.1.5"
+msgstr "Esquemas de Extensiones OCDS 1.1.5"
+

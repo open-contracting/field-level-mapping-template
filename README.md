@@ -10,10 +10,31 @@ Issues for the improvement and generation of the Field Level Mapping Template ar
 
 ```bash
 pip install -r requirements.txt
+pybabel compile -f -d locale
 ```
 
 ## Usage
 
 ```bash
 python manage.py --help
+```
+
+## Translations
+
+Extract new messages:
+
+```bash
+pybabel extract -F pyproject.toml -o locale/messages.pot .
+```
+
+Update existing translations
+
+```bash
+pybabel update -N -i locale/messages.pot -d locale
+```
+
+Compile translations:
+
+```bash
+pybabel compile -f -d locale
 ```
