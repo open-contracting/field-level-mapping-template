@@ -91,7 +91,7 @@ platformdirs==4.3.3
     # via
     #   -r requirements.txt
     #   requests-cache
-protobuf==6.33.4
+protobuf==6.33.5
     # via
     #   -r requirements.txt
     #   google-api-core
