@@ -96,13 +96,13 @@ protobuf==6.33.5
     #   -r requirements.txt
     #   google-api-core
     #   googleapis-common-protos
-pyasn1==0.4.8
+pyasn1==0.6.3
     # via
     #   -r requirements.txt
     #   oauth2client
     #   pyasn1-modules
     #   rsa
-pyasn1-modules==0.2.8
+pyasn1-modules==0.4.2
     # via
     #   -r requirements.txt
     #   google-auth
