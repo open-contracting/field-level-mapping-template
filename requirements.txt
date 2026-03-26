@@ -79,7 +79,7 @@ pytz==2021.1
     # via google-api-core
 pyyaml==6.0.1
     # via pydrive
-requests==2.32.4
+requests==2.33.0
     # via
     #   -r requirements.in
     #   google-api-core
@@ -92,10 +92,6 @@ rsa==4.7.1
     # via
     #   google-auth
     #   oauth2client
-setuptools==80.9.0
-    # via
-    #   google-api-core
-    #   google-auth
 six==1.17.0
     # via
     #   google-api-core
