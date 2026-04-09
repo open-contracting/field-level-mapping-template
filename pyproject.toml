@@ -20,3 +20,6 @@ ignore-variadic-names = true
 [[tool.babel.mappings]]
 method = "python"
 pattern = "**.py"
+
+[tool.uv.pip]
+exclude-newer = "1 week"
