@@ -8,6 +8,5 @@ jobs:
     secrets:
       personal-access-token: ${{ secrets.PAT }}
     with:
-      python-version: '3.12'
       # google and oauth2client are optional (try-except block).
       standard-maintenance-scripts-ignore: google,oauth2client
