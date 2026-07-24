@@ -62,7 +62,7 @@ protobuf==6.33.5
     # via
     #   google-api-core
     #   googleapis-common-protos
-pyasn1==0.6.3
+pyasn1==0.6.4
     # via
     #   oauth2client
     #   pyasn1-modules
