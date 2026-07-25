@@ -8,5 +8,5 @@ jobs:
     secrets:
       personal-access-token: ${{ secrets.PAT }}
     with:
-      # google and oauth2client are optional (try-except block).
+      # google and oauth2client are optional, and made available by Google Colab.
       standard-maintenance-scripts-ignore: google,oauth2client
