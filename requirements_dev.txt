@@ -45,7 +45,7 @@ googleapis-common-protos==1.52.0
     # via
     #   -r requirements.txt
     #   google-api-core
-httplib2==0.22.0
+httplib2==0.32.0
     # via
     #   -r requirements.txt
     #   google-api-python-client
@@ -137,11 +137,6 @@ rsa==4.7.1
     #   -r requirements.txt
     #   google-auth
     #   oauth2client
-setuptools==83.0.0
-    # via
-    #   -r requirements.txt
-    #   google-api-core
-    #   google-auth
 six==1.17.0
     # via
     #   -r requirements.txt
