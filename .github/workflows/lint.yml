@@ -6,7 +6,8 @@ jobs:
     permissions:
       contents: write
     secrets:
-      personal-access-token: ${{ secrets.PAT }}
+      client-id: ${{ secrets.APP_CLIENT_ID }}
+      private-key: ${{ secrets.APP_PRIVATE_KEY }}
     with:
       # google and oauth2client are optional, and made available by Google Colab.
       standard-maintenance-scripts-ignore: google,oauth2client
