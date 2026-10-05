@@ -91,6 +91,10 @@ rsa==4.7.1
     # via
     #   google-auth
     #   oauth2client
+setuptools==84.0.0
+    # via
+    #   google-api-core
+    #   google-auth
 six==1.17.0
     # via
     #   google-api-core
