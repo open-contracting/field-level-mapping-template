@@ -137,11 +137,6 @@ rsa==4.7.1
     #   -r requirements.txt
     #   google-auth
     #   oauth2client
-setuptools==84.0.0
-    # via
-    #   -r requirements.txt
-    #   google-api-core
-    #   google-auth
 six==1.17.0
     # via
     #   -r requirements.txt
@@ -159,7 +154,7 @@ url-normalize==1.4.3
     # via
     #   -r requirements.txt
     #   requests-cache
-urllib3==2.7.0
+urllib3==2.8.0
     # via
     #   -r requirements.txt
     #   requests
